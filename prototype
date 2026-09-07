@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaspi Магазин — Мои Заказы</title>
+    <style>
+        :root {
+            --kaspi-red: #F14635;
+            --kaspi-bg: #F2F2F7;
+            --kaspi-card: #FFFFFF;
+            --kaspi-text: #222222;
+            --kaspi-gray: #8E8E93;
+            --kaspi-green: #34C759;
+            --kaspi-yellow: #FF9500;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--kaspi-bg);
+            color: var(--kaspi-text);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 414px;
+            background-color: var(--kaspi-bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .header {
+            background-color: var(--kaspi-card);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #E5E5EA;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--kaspi-red);
+            cursor: pointer;
+            margin-right: 12px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* Order Card */
+        .content {
+            padding: 16px;
+            flex: 1;
+        }
+
+        .order-card {
+            background: var(--kaspi-card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #F2F2F7;
+        }
+
+        .order-id {
+            font-size: 14px;
+            color: var(--kaspi-gray);
+        }
+
+        .order-price {
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* Product Details */
+        .product-info {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .product-img {
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
+            background-color: #F9F9F9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .seller-info {
+            font-size: 12px;
+            color: var(--kaspi-gray);
+        }
+
+        /* Delay Status Banner */
+        .delay-banner {
+            background-color: #FFF9E6;
+            border: 1px solid #FFE082;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .delay-icon {
+            font-size: 20px;
+        }
+
+        .delay-text {
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .delay-title {
+            font-weight: 600;
+            color: #B78103;
+            margin-bottom: 2px;
+        }
+
+        /* Status Timeline */
+        .status-tracker {
+            margin-bottom: 16px;
+            padding: 8px 0;
+        }
+
+        .status-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            position: relative;
+            padding-bottom: 16px;
+        }
+
+        .status-step:last-child {
+            padding-bottom: 0;
+        }
+
+        .status-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 20px;
+            bottom: 0;
+            width: 2px;
+            background-color: #E5E5EA;
+        }
+
+        .status-step.active:not(:last-child)::after {
+            background-color: var(--kaspi-red);
+        }
+
+        .dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #E5E5EA;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: white;
+            z-index: 1;
+        }
+
+        .status-step.active .dot {
+            background-color: var(--kaspi-red);
+        }
+
+        .status-step.delayed .dot {
+            background-color: var(--kaspi-yellow);
+        }
+
+        .step-info {
+            font-size: 13px;
+        }
+
+        .step-title {
+            font-weight: 600;
+        }
+
+        .step-time {
+            font-size: 11px;
+            color: var(--kaspi-gray);
+        }
+
+        /* Action Buttons */
+        .actions-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:active {
+            opacity: 0.7;
+        }
+
+        .btn-primary {
+            background-color: var(--kaspi-red);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #EFEFEF;
+            color: var(--kaspi-text);
+        }
+
+        .btn-danger {
+            background-color: #FFF2F2;
+            color: var(--kaspi-red);
+        }
+
+        /* Modal Sheet */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: flex-end;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px 16px 0 0;
+            padding: 20px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .modal-desc {
+            font-size: 14px;
+            color: var(--kaspi-gray);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .time-options {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .time-option {
+            padding: 12px;
+            border: 1px solid #E5E5EA;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .time-option.selected {
+            border-color: var(--kaspi-red);
+            background-color: #FFF5F5;
+        }
+
+        .toast {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-align: center;
+            display: none;
+            z-index: 200;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="header">
+        <button class="back-btn">&#8592;</button>
+        <div class="header-title">Детали заказа № 894120</div>
+    </div>
+
+    <div class="content">
+        <div class="order-card">
+            <div class="order-header">
+                <span class="order-id">Kaspi Магазин</span>
+                <span class="order-price">129 990 ₸</span>
+            </div>
+
+            <div class="product-info">
+                <div class="product-img">🎧</div>
+                <div class="product-details">
+                    <div class="product-title">Беспроводные наушники Sony WH-1000XM4 Black</div>
+                    <div class="seller-info">Продавец: Technodom</div>
+                </div>
+            </div>
+
+            <div class="delay-banner" id="delayBanner">
+                <div class="delay-icon">⚠️</div>
+                <div class="delay-text">
+                    <div class="delay-title">Задержка доставки</div>
+                    Курьер задерживается из-за высокой нагрузки на сортировочном центре.
+                </div>
+            </div>
+
+            <div class="status-tracker">
+                <div class="status-step active">
+                    <div class="dot">✓</div>
+                    <div class="step-info">
+                        <div class="step-title">Заказ оформлен</div>
+                        <div class="step-time">Вчера, 14:20</div>
+                    </div>
+                </div>
+                <div class="status-step active">
+                    <div class="dot">✓</div>
+                    <div class="step-info">
+                        <div class="step-title">Передан в службу доставки</div>
+                        <div class="step-time">Сегодня, 09:00</div>
+                    </div>
+                </div>
+                <div class="status-step active delayed" id="deliveryStep">
+                    <div class="dot">!</div>
+                    <div class="step-info">
+                        <div class="step-title" style="color: var(--kaspi-yellow);">Задерживается</div>
+                        <div class="step-time">Ожидалось: сегодня до 18:00</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-group" id="actionButtons">
+                <button class="btn btn-primary" onclick="callCourier()">
+                    📞 Позвонить курьеру (+7 707 *** 4210)
+                </button>
+                <button class="btn btn-secondary" onclick="openTimeModal()">
+                    📅 Изменить время доставки
+                </button>
+                <button class="btn btn-danger" onclick="openCancelModal()">
+                    🚫 Быстрая отмена (возврат на Kaspi Gold)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="timeModal">
+        <div class="modal-content">
+            <div class="modal-title">Выберите новое время</div>
+            <div class="modal-desc">Заказ будет переназначен на свободного курьера.</div>
+            <div class="time-options">
+                <div class="time-option selected" onclick="selectOption(this)">
+                    <span>Завтра, 10:00 – 14:00</span>
+                    <span>✓</span>
+                </div>
+                <div class="time-option" onclick="selectOption(this)">
+                    <span>Завтра, 14:00 – 18:00</span>
+                    <span></span>
+                </div>
+                <div class="time-option" onclick="selectOption(this)">
+                    <span>Послезавтра, 10:00 – 14:00</span>
+                    <span></span>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="confirmTimeChange()">Подтвердить</button>
+            <button class="btn btn-secondary" style="margin-top: 8px;" onclick="closeModal('timeModal')">Закрыть</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cancelModal">
+        <div class="modal-content">
+            <div class="modal-title">Отменить заказ?</div>
+            <div class="modal-desc">
+                Деньги в размере <b>129 990 ₸</b> будут моментально возвращены на ваш счет <b>Kaspi Gold</b>.
+            </div>
+            <button class="btn btn-danger" onclick="confirmCancel()">Да, отменить заказ</button>
+            <button class="btn btn-secondary" style="margin-top: 8px;" onclick="closeModal('cancelModal')">Не отменять</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">Уведомление</div>
+</div>
+
+<script>
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.innerText = message;
+        toast.style.display = 'block';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+
+    function callCourier() {
+        showToast("Инициация соединения с курьером...");
+        setTimeout(() => {
+            alert("Вызов курьера: +7 (707) 123-42-10");
+        }, 500);
+    }
+
+    function openTimeModal() {
+        document.getElementById('timeModal').style.display = 'flex';
+    }
+
+    function openCancelModal() {
+        document.getElementById('cancelModal').style.display = 'flex';
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).style.display = 'none';
+    }
+
+    function selectOption(element) {
+        document.querySelectorAll('.time-option').forEach(el => {
+            el.classList.remove('selected');
+            el.querySelector('span:last-child').innerText = '';
+        });
+        element.classList.add('selected');
+        element.querySelector('span:last-child').innerText = '✓';
+    }
+
+    function confirmTimeChange() {
+        closeModal('timeModal');
+        const deliveryStep = document.getElementById('deliveryStep');
+        deliveryStep.className = "status-step active";
+        deliveryStep.innerHTML = `
+            <div class="dot">✓</div>
+            <div class="step-info">
+                <div class="step-title" style="color: var(--kaspi-text);">Перенесено</div>
+                <div class="step-time">Новое время: Завтра, 10:00 – 14:00</div>
+            </div>
+        `;
+        document.getElementById('delayBanner').style.display = 'none';
+        showToast("Время доставки успешно изменено");
+    }
+
+    function confirmCancel() {
+        closeModal('cancelModal');
+        
+        // Update interface to Canceled status
+        document.getElementById('delayBanner').style.display = 'none';
+        document.querySelector('.status-tracker').innerHTML = `
+            <div class="status-step active">
+                <div class="dot" style="background-color: var(--kaspi-gray);">✕</div>
+                <div class="step-info">
+                    <div class="step-title" style="color: var(--kaspi-gray);">Заказ отменен</div>
+                    <div class="step-time">Средства возвращены на Kaspi Gold</div>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('actionButtons').innerHTML = `
+            <div style="text-align: center; color: var(--kaspi-green); font-weight: 600; padding: 12px; background: #E8F8EE; border-radius: 8px;">
+                ✓ 129 990 ₸ возвращено на Kaspi Gold
+            </div>
+        `;
+        
+        showToast("Заказ отменен. Деньги возвращены.");
+    }
+</script>
+</body>
+</html>
